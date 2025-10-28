@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Finder</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.has-results {
+      display: block;
+      align-items: initial;
+    }
+
+    .app-container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    body:not(.has-results) .app-container {
+      max-width: 600px;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      color: #2d3748;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      color: #718096;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .search-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      flex: 1;
+      min-width: 200px;
+      padding: 14px 18px;
+      font-size: 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .info-banner {
+      background: #edf2f7;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid #667eea;
+      display: none;
+    }
+
+    .info-banner.show {
+      display: block;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .info-text {
+      margin: 0;
+      color: #2d3748;
+      font-weight: 600;
+    }
+
+    h2 {
+      color: #2d3748;
+      margin: 30px 0 20px 0;
+      font-size: 24px;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .section * {
+      background-color: #ff751f;
+      border: 2px black solid;
+    }
+
+    .passage {
+      background-color: #004aad;
+      color: white;
+    }
+
+    .empty {
+      background-color: white;
+      color: white;
+      border: none;
+    }
+
+    .box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      padding: 10px 15px;
+      transition: all 0.3s;
+      cursor: default;
+      position: relative;
+      font-size: 14px;
+      min-height: 50px;
+    }
+
+    .box.highlight {
+      background-color: #10b981 !important;
+      color: white !important;
+      animation: pulse 0.5s ease-in-out;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .section {
+      padding: 10px;
+      display: grid;
+      border: 2px black solid;
+      grid-template-columns: 1fr 2fr 2fr 2fr 2fr;
+      gap: 5px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+
+    .location {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .G, .H { background-color: #09a34f; }
+    .GH { border-color: #09a34f; }
+    .E, .F { background-color: #663399; }
+    .EF { border-color: #663399; }
+    .C, .D { background-color: #459fe3; }
+    .CD { border-color: #459fe3; }
+    .A, .B { background-color: #e81c2b; }
+    .AB { border-color: #e81c2b; }
+
+    .container {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      justify-content: center;
+      gap: 20px;
+      background-color: #ff751f;
+      border: 2px solid black;
+      max-width: 400px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .container.show {
+      display: grid;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .C16R, .C16L, .C8L, .C8R {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      max-width: 450px;
+    }
+
+    .cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: black;
+      color: white;
+      font-weight: bold;
+      padding: 10px 15px;
+      min-height: 60px;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+
+    .cell.highlight {
+      background-color: #10b981 !important;
+      color: white !important;
+      animation: pulse 0.5s ease-in-out;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+    }
+
+    .C8L *, .C8R * {
+      background-color: white;
+      color: black;
+    }
+
+    .C8L, .C8R {
+      background-color: #004aad;
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .section {
+        grid-template-columns: 0.8fr repeat(4, 1fr);
+        font-size: 14px;
+      }
+
+      .box {
+        padding: 8px;
+      }
+
+      .container {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <h1>🎯 Location Finder</h1>
+    <p class="subtitle">Enter a seat number to find its location and position</p>
+
+    <div class="search-section">
+      <input type="number" id="searchInput" placeholder="Enter seat number (e.g., 151)" aria-label="Seat number">
+      <button id="searchBtn">Search Location</button>
+    </div>
+
+    <div class="info-banner" id="infoBanner">
+      <p class="info-text" id="infoText"></p>
+    </div>
+
+    <div id="resultsSection" style="display: none;">
+    <h2>📍 Location Map</h2>
+    <div class="location" id="locationMap">
+      <div class="section GH">
+        <div class="H box">H</div><div class="H1 box"></div><div class="H2 box"></div><div class="H3 box passage"></div><div class="H4 box"></div>
+        <div class="G box">G</div><div class="G1 box"></div><div class="G2 box"></div><div class="G3 box passage"></div><div class="G4 box"></div>
+      </div>
+      <div class="section EF">
+        <div class="F box">F</div><div class="F1 box"></div><div class="F2 box"></div><div class="F3 box passage"></div><div class="F4 box"></div>
+        <div class="E box">E</div><div class="E1 box"></div><div class="E2 box"></div><div class="E3 box passage"></div><div class="E4 box"></div>
+      </div>
+      <div class="section CD">
+        <div class="D box">D</div><div class="D1 box"></div><div class="D2 box"></div><div class="D3 box passage"></div><div class="D4 box empty"></div>
+        <div class="C box">C</div><div class="C1 box"></div><div class="C2 box"></div><div class="C3 box passage"></div><div class="C4 box empty"></div>
+      </div>
+      <div class="section AB">
+        <div class="B box">B</div><div class="B1 box"></div><div class="B2 box passage"></div><div class="B3 box empty"></div><div class="B4 box empty"></div>
+        <div class="A box">A</div><div class="A1 box"></div><div class="A2 box passage"></div><div class="A3 box empty"></div><div class="A4 box empty"></div>
+      </div>
+    </div>
+
+    <h2>💺 Position Detail</h2>
+    <div class="container C8L" data-capacity="8" data-side="L">
+      <div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div><div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div>
+      <div class="X4 cell" data-pos="4">4</div><div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
+    </div>
+    <div class="container C8R" data-capacity="8" data-side="R">
+      <div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div><div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div>
+      <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div><div class="X4 cell" data-pos="4">4</div>
+    </div>
+    <div class="container C12L" data-capacity="12" data-side="L">
+      <div class="X12 cell" data-pos="12">12</div><div class="X11 cell" data-pos="11">11</div><div class="X10 cell" data-pos="10">10</div>
+      <div class="X9 cell" data-pos="9">9</div><div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div>
+      <div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div><div class="X4 cell" data-pos="4">4</div>
+      <div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
+    </div>
+    <div class="container C12R" data-capacity="12" data-side="R">
+      <div class="X10 cell" data-pos="10">10</div><div class="X11 cell" data-pos="11">11</div><div class="X12 cell" data-pos="12">12</div>
+      <div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div><div class="X9 cell" data-pos="9">9</div>
+      <div class="X4 cell" data-pos="4">4</div><div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div>
+      <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div>
+    </div>
+    <div class="container C16L" data-capacity="16" data-side="L">
+      <div class="X16 cell" data-pos="16">16</div><div class="X15 cell" data-pos="15">15</div><div class="X14 cell" data-pos="14">14</div><div class="X13 cell" data-pos="13">13</div>
+      <div class="X12 cell" data-pos="12">12</div><div class="X11 cell" data-pos="11">11</div><div class="X10 cell" data-pos="10">10</div><div class="X9 cell" data-pos="9">9</div>
+      <div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div><div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div>
+      <div class="X4 cell" data-pos="4">4</div><div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
+    </div>
+    <div class="container C16R" data-capacity="16" data-side="R">
+      <div class="X13 cell" data-pos="13">13</div><div class="X14 cell" data-pos="14">14</div><div class="X15 cell" data-pos="15">15</div><div class="X16 cell" data-pos="16">16</div>
+      <div class="X9 cell" data-pos="9">9</div><div class="X10 cell" data-pos="10">10</div><div class="X11 cell" data-pos="11">11</div><div class="X12 cell" data-pos="12">12</div>
+      <div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div><div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div>
+      <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div><div class="X4 cell" data-pos="4">4</div>
+    </div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      emptyCells: ["A3", "A4", "B3", "B4", "C4", "D4"],
+      eightCells: ["A2", "B2", "C3", "D3", "E3", "F3", "G3", "H3"],
+      twelveCells: ["A1", "B1", "C1", "D1", "E1", "E4", "F1", "F4", "G1", "G4"],
+      sixteenCells: ["C2", "D2", "E2", "F2", "G2", "H2"],
+      rows: ["1", "2", "3", "4"],
+      cols: ["A", "B", "C", "D", "E", "F", "G", "H"]
+    };
+
+    class LocationFinder {
+      constructor() {
+        this.data = this.generateData();
+        this.populatePositionNumbers();
+        this.setupEventListeners();
+      }
+
+      populatePositionNumbers() {
+        // This will be populated when a search is performed
+        // Each container shows numbers specific to the searched location
+      }
+
+      getSide(cellId) {
+        const section = cellId.charAt(0);
+        return ["A", "C", "E", "G"].includes(section) ? "R" : "L";
+      }
+
+      generateData() {
+        const allCells = [];
+        let currentStart = 1;
+
+        for (const col of CONFIG.cols) {
+          for (const row of CONFIG.rows) {
+            const id = `${col}${row}`;
+            const capacity = this.getCellCapacity(id);
+            const end = capacity > 0 ? currentStart + capacity - 1 : currentStart - 1;
+
+            allCells.push({
+              id,
+              start: capacity > 0 ? currentStart : null,
+              end: capacity > 0 ? end : null,
+              capacity
+            });
+
+            if (capacity > 0) currentStart = end + 1;
+          }
+        }
+        return allCells;
+      }
+
+      getCellCapacity(id) {
+        if (CONFIG.emptyCells.includes(id)) return 0;
+        if (CONFIG.eightCells.includes(id)) return 8;
+        if (CONFIG.twelveCells.includes(id)) return 12;
+        if (CONFIG.sixteenCells.includes(id)) return 16;
+        return 0;
+      }
+
+      findCellByNumber(num) {
+        return this.data.find(cell => 
+          cell.capacity > 0 && num >= cell.start && num <= cell.end
+        ) || null;
+      }
+
+      resetHighlights() {
+        document.querySelectorAll(".box, .cell").forEach(el => {
+          el.classList.remove("highlight");
+        });
+        document.querySelectorAll(".container").forEach(c => {
+          c.classList.remove("show");
+        });
+      }
+
+      showInfo(message, isError = false) {
+        const banner = document.getElementById("infoBanner");
+        const text = document.getElementById("infoText");
+        text.textContent = message;
+        banner.style.borderLeftColor = isError ? "#e81c2b" : "#667eea";
+        banner.classList.add("show");
+        
+        setTimeout(() => {
+          if (!isError) banner.classList.remove("show");
+        }, 5000);
+      }
+
+      search(value) {
+        const num = parseInt(value);
+        
+        if (isNaN(num) || num <= 0) {
+          this.showInfo("⚠️ Please enter a valid positive number", true);
+          return;
+        }
+
+        this.resetHighlights();
+        const found = this.findCellByNumber(num);
+
+        if (!found) {
+          this.showInfo("❌ Seat number not found. Please check and try again.", true);
+          return;
+        }
+
+        // Show the results section
+        document.getElementById("resultsSection").style.display = "block";
+        document.body.classList.add("has-results");
+        
+        this.highlightLocation(found, num);
+        this.showInfo(`✅ Found: Seat ${num} is in location ${found.id} (${found.start}-${found.end})`);
+      }
+
+      highlightLocation(cell, seatNum) {
+        const box = document.querySelector(`.${cell.id}.box`);
+        if (box) box.classList.add("highlight");
+
+        const section = cell.id.charAt(0);
+        const side = ["A", "C", "E", "G"].includes(section) ? "R" : "L";
+        const container = document.querySelector(`.C${cell.capacity}${side}`);
+
+        if (container) {
+          // Populate the actual seat numbers in this container
+          container.querySelectorAll('.cell[data-pos]').forEach(cellEl => {
+            const position = parseInt(cellEl.dataset.pos);
+            const actualNumber = cell.start + position - 1;
+            cellEl.textContent = actualNumber;
+          });
+          
+          container.classList.add("show");
+          const positionIndex = seatNum - cell.start + 1;
+          const positionCell = container.querySelector(`.X${positionIndex}.cell`);
+          if (positionCell) positionCell.classList.add("highlight");
+        }
+      }
+
+      setupEventListeners() {
+        const input = document.getElementById("searchInput");
+        const button = document.getElementById("searchBtn");
+
+        button.addEventListener("click", () => this.search(input.value.trim()));
+        
+        input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") this.search(input.value.trim());
+        });
+
+        input.addEventListener("focus", () => {
+          document.getElementById("infoBanner").classList.remove("show");
+        });
+      }
+    }
+
+    new LocationFinder();
+  </script>
+</body>
+</html>

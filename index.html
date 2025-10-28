@@ -206,7 +206,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       justify-content: center;
-      gap: 20px;
+      gap: 10px;
       background-color: #ff751f;
       border: 2px solid black;
       max-width: 400px;
@@ -231,9 +231,9 @@
     }
 
     .C16R, .C16L, .C8L, .C8R {
-      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, minmax(60px, 1fr));
       max-width: 100%;
-      width: fit-content;
+      width: 100%;
     }
 
     .cell {
@@ -247,6 +247,12 @@
       min-height: 60px;
       border-radius: 6px;
       transition: all 0.3s;
+    }
+
+    .C8L .cell, .C8R .cell, .C16L .cell, .C16R .cell {
+      padding: 8px;
+      min-height: 50px;
+      font-size: 13px;
     }
 
     .cell.highlight {

@@ -47,7 +47,22 @@ const TRANSLATIONS = {
     importBtn: "Import",
     icon: "Icon",
     clearData: "Clear All Data",
-    clearedSuccess: "All data cleared successfully"
+    clearedSuccess: "All data cleared successfully",
+    howToUse: "How to Use",
+    guideTitle: "How to Use Guide",
+    guideFindTitle: "Find Pallet Mode",
+    guideFindDesc: "Enter a pallet number (e.g., 151) and click 'Locate'. The app will show you its exact position on the warehouse map and what products it contains.",
+    guideAddTitle: "Add Products Mode",
+    guideAddDesc: "First, find a pallet by its number. Then, select the products you want to assign to that pallet from the list and click 'Save'.",
+    guideSearchTitle: "Search by Product Mode",
+    guideSearchDesc: "This screen lists all available products and shows which pallets they are on. Use the search bar to quickly find a product. Click on a pallet number to locate it.",
+    guideSettingsTitle: "Settings Mode",
+    guideSettingsDesc: "Here you can manage your product list (add, edit, or delete items), and handle app data by exporting your current setup or importing a new one.",
+    updateFromSource: "Update from Source",
+    updateBtn: "Fetch Latest Data",
+    fetchingData: "Fetching latest data...",
+    fetchFailed: "Failed to fetch data. Check connection or try again.",
+    viewSourceFile: "View source file on GitHub"
   },
   fr: {
     appTitle: "Localisateur de Palettes - Hyper U",
@@ -97,7 +112,22 @@ const TRANSLATIONS = {
     importBtn: "Importer",
     icon: "Icône",
     clearData: "Effacer toutes les données",
-    clearedSuccess: "Toutes les données ont été effacées"
+    clearedSuccess: "Toutes les données ont été effacées",
+    howToUse: "Comment Utiliser",
+    guideTitle: "Guide d'Utilisation",
+    guideFindTitle: "Mode Trouver Palette",
+    guideFindDesc: "Entrez un numéro de palette (ex: 151) et cliquez sur 'Localiser'. L'application vous montrera sa position exacte sur le plan de l'entrepôt et les produits qu'elle contient.",
+    guideAddTitle: "Mode Ajouter Produits",
+    guideAddDesc: "D'abord, trouvez une palette par son numéro. Ensuite, sélectionnez les produits que vous souhaitez assigner à cette palette dans la liste et cliquez sur 'Enregistrer'.",
+    guideSearchTitle: "Mode Rechercher par Produit",
+    guideSearchDesc: "Cet écran liste tous les produits disponibles et indique sur quelles palettes ils se trouvent. Utilisez la barre de recherche pour trouver rapidement un produit. Cliquez sur un numéro de palette pour la localiser.",
+    guideSettingsTitle: "Mode Paramètres",
+    guideSettingsDesc: "Ici, vous pouvez gérer votre liste de produits (ajouter, modifier ou supprimer des articles) et gérer les données de l'application en exportant votre configuration actuelle ou en en important une nouvelle.",
+    updateFromSource: "Mettre à jour depuis la source",
+    updateBtn: "Récupérer les données",
+    fetchingData: "Récupération des données...",
+    fetchFailed: "Échec de la récupération. Vérifiez la connexion ou réessayez.",
+    viewSourceFile: "Voir le fichier source sur GitHub"
   }
 };
 
@@ -115,66 +145,29 @@ class LocationFinder {
     try {
       // defaults - used for resetting
       this.defaultContentTypes = [
-        "Pâtes (Pasta)",
-        "Riz (Rice)",
-        "Couscous (Couscous)",
-        "Légumineuses (Legumes & beans)",
-        "Huile (Oil)",
-        "Vinaigre (Vinegar)",
-        "Sauces (Ketchup, Mayo, BBQ, Soja, Harissa)",
-        "Conserves (Canned goods)",
-        "Sauce tomate (Tomato sauce)",
-        "Condiments (Pickles, Mustard, etc.)",
-        "Épices (Spices)",
-        "Farine (Flour)",
-        "Sucre (Sugar)",
-        "Sel (Salt)",
-        "Céréales (Cereals)",
-        "Biscuits sucrés (Sweet biscuits)",
-        "Biscuits salés (Crackers)",
-        "Gâteaux (Cakes & snacks)",
-        "Chocolat (Chocolate bars)",
-        "Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)",
-        "Confiture (Jam)",
-        "Miel (Honey)",
-        "Café (Coffee)",
-        "Thé (Tea)",
-        "Cacao (Cocoa drink)",
-        "Soupes & bouillons (Soups & broths)",
-        "Produits variés (Mixed products)",
+        "Pâtes (Pasta)","Riz (Rice)","Couscous (Couscous)","Légumineuses (Legumes & beans)",
+        "Huile (Oil)","Vinaigre (Vinegar)","Sauces (Ketchup, Mayo, BBQ, Soja, Harissa)",
+        "Conserves (Canned goods)","Sauce tomate (Tomato sauce)","Condiments (Pickles, Mustard, etc.)",
+        "Épices (Spices)","Farine (Flour)","Sucre (Sugar)","Sel (Salt)","Céréales (Cereals)",
+        "Biscuits sucrés (Sweet biscuits)","Biscuits salés (Crackers)","Gâteaux (Cakes & snacks)",
+        "Chocolat (Chocolate bars)","Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)",
+        "Confiture (Jam)","Miel (Honey)","Café (Coffee)","Thé (Tea)","Cacao (Cocoa drink)",
+        "Soupes & bouillons (Soups & broths)","Produits variés (Mixed products)"
       ];
       this.defaultProductIcons = {
-        "Pâtes (Pasta)": "🍝",
-        "Riz (Rice)": "🍚",
-        "Couscous (Couscous)": "🥘",
-        "Légumineuses (Legumes & beans)": "🧆",
-        "Huile (Oil)": "🫒",
-        "Vinaigre (Vinegar)": "🍾",
-        "Sauces (Ketchup, Mayo, BBQ, Soja, Harissa)": "🧴",
-        "Conserves (Canned goods)": "🥫",
-        "Sauce tomate (Tomato sauce)": "🍅",
-        "Condiments (Pickles, Mustard, etc.)": "🥒",
-        "Épices (Spices)": "🌶️",
-        "Farine (Flour)": "🌾",
-        "Sucre (Sugar)": "🍬",
-        "Sel (Salt)": "🧂",
-        "Céréales (Cereals)": "🥣",
-        "Biscuits sucrés (Sweet biscuits)": "🍪",
-        "Biscuits salés (Crackers)": "🥨",
-        "Gâteaux (Cakes & snacks)": "🧁",
-        "Chocolat (Chocolate bars)": "🍫",
-        "Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)": "🥄",
-        "Confiture (Jam)": "🍓",
-        "Miel (Honey)": "🐝",
-        "Café (Coffee)": "☕",
-        "Thé (Tea)": "🍵",
-        "Cacao (Cocoa drink)": "🥛",
-        "Soupes & bouillons (Soups & broths)": "🍲",
-        "Produits variés (Mixed products)": "☢️"
+        "Pâtes (Pasta)": "🍝","Riz (Rice)": "🍚","Couscous (Couscous)": "🥘",
+        "Légumineuses (Legumes & beans)": "🧆","Huile (Oil)": "🫒","Vinaigre (Vinegar)": "🍾",
+        "Sauces (Ketchup, Mayo, BBQ, Soja, Harissa)": "🧴","Conserves (Canned goods)": "🥫",
+        "Sauce tomate (Tomato sauce)": "🍅","Condiments (Pickles, Mustard, etc.)": "🥒",
+        "Épices (Spices)": "🌶️","Farine (Flour)": "🌾","Sucre (Sugar)": "🍬","Sel (Salt)": "🧂",
+        "Céréales (Cereals)": "🥣","Biscuits sucrés (Sweet biscuits)": "🍪","Biscuits salés (Crackers)": "🥨",
+        "Gâteaux (Cakes & snacks)": "🧁","Chocolat (Chocolate bars)": "🍫","Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)": "🥄",
+        "Confiture (Jam)": "🍓","Miel (Honey)": "🐝","Café (Coffee)": "☕","Thé (Tea)": "🍵",
+        "Cacao (Cocoa drink)": "🥛","Soupes & bouillons (Soups & broths)": "🍲","Produits variés (Mixed products)": "☢️"
       };
 
       this.data = this.generateData();
-      this.currentLanguage = 'en';
+      this.currentLanguage = localStorage.getItem('hyperULang') || 'en'; // persist language
       this.currentMode = null;
       this.seatContents = {};
       this.productIcons = {};
@@ -272,7 +265,8 @@ class LocationFinder {
       if (data.seatContents && data.contentTypes) {
         this.seatContents = data.seatContents;
         this.contentTypes = data.contentTypes;
-        this.productIcons = data.productIcons || {};
+        // merge icons with defaults so everything has an emoji
+        this.productIcons = Object.assign({}, this.defaultProductIcons, data.productIcons || {});
         this.saveToStorage();
         this.showInfo('✅ ' + this.t('dataImported'));
         setTimeout(() => this.showSettings(), 1500);
@@ -292,6 +286,26 @@ class LocationFinder {
         this.importData(jsonString);
         textarea.value = '';
       }
+    }
+  }
+
+  async importFromSource() {
+    const sourceUrl = 'https://raw.githubusercontent.com/elfilaliamin/Stock-Find-Location/main/data.json';
+    this.showInfo('⏳ ' + this.t('fetchingData'));
+
+    try {
+      const response = await fetch(sourceUrl, { cache: 'no-store' }); // Use no-store to get the latest
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const jsonString = await response.text();
+      this.importData(jsonString);
+    } catch (error) {
+      console.error('Failed to fetch from source:', error);
+      this.showInfo('❌ ' + this.t('fetchFailed'), true);
+    } finally {
+      // The info banner from importData will take over, or the error will be shown.
+      // No need to hide the "fetching" message explicitly.
     }
   }
 
@@ -321,6 +335,7 @@ class LocationFinder {
 
   selectLanguage(lang) {
     this.currentLanguage = lang;
+    try { localStorage.setItem('hyperULang', lang); } catch (_) {}
     this.showModeSelection();
   }
 
@@ -345,6 +360,9 @@ class LocationFinder {
             <button class="mode-button" onclick="window.app.showSettings()">
             ⚙️ ${this.t('settings')}
             </button>
+            <button class="mode-button" onclick="window.app.selectMode('guide')" style="grid-column: 1 / -1;">
+            💡 ${this.t('howToUse')}
+            </button>
         </div>
         </div>
     `;
@@ -352,12 +370,15 @@ class LocationFinder {
 
   selectMode(mode) {
     this.currentMode = mode;
+    this.resetHighlights(); // ensure no lingering highlights
     if (mode === 'find') {
       this.showFindMode();
     } else if (mode === 'add') {
       this.showAddContentMode();
     } else if (mode === 'search-content') {
       this.showSearchByContentMode();
+    } else if (mode === 'guide') {
+      this.showGuideMode();
     }
   }
 
@@ -392,43 +413,88 @@ class LocationFinder {
     for (let i = 0; i < sortedTypes.length; i++) {
       const type = sortedTypes[i];
       const seats = contentBySeat[type] || [];
-      seats.sort((a, b) => a - b);
       const icon = this.productIcons[type] || '📦';
-
       let seatsButtons = '';
+
       if (seats.length > 0) {
+        seats.sort((a, b) => a - b);
         seatsButtons = '<div class="seat-buttons">';
         for (let j = 0; j < seats.length; j++) {
           seatsButtons += `<button class="seat-button" onclick="window.app.searchFromContent(${seats[j]})">${seats[j]}</button>`;
         }
         seatsButtons += '</div>';
       } else {
-        seatsButtons = `<p class="no-content">${this.t('noContent')}</p>`;
+        // Display a message if there are no pallets for this product
+        seatsButtons = `<p class="no-content" style="font-size: 14px; color: var(--ink-500); margin-top: 10px;">${this.t('noContent')}</p>`;
       }
 
       contentHTML += `
-        <div class="content-list-item">
+        <div class="content-list-item" data-seat-count="${seats.length}">
             <div class="content-list-header">
-            <span><span class="icon">${icon}</span> ${type}</span>
-            <span class="seat-badge">${seats.length} ${this.t('seats')}</span>
+              <span class="content-list-title"><span class="icon">${icon}</span> ${this.escapeHtml(type)}</span>
+              <span class="seat-badge">${seats.length} ${this.t('seats')}</span>
             </div>
             ${seatsButtons}
         </div>
-        `;
+      `;
     }
 
     const root = document.getElementById('appRoot');
     if (!root) return;
 
+    // Add search input at top + keep badge in one line (CSS handles)
     root.innerHTML = `
         <div class="app-container">
         <div class="hyper-u-logo">HYPER U</div>
         <h1>🔎 ${this.t('searchByContent')}</h1>
         <p class="subtitle">${this.t('clickToSearch')}</p>
         <button onclick="window.app.showModeSelection()">← ${this.t('back')}</button>
-        <div style="margin-top: 20px;">${contentHTML}</div>
+
+        <div class="search-section" style="margin-top:12px;">
+          <input type="text" id="productSearch" placeholder="${this.currentLanguage === 'en' ? 'Search product…' : 'Rechercher un produit…'}" aria-label="Search product">
+        </div>
+
+        <div id="contentList" style="margin-top: 10px;">${contentHTML}</div>
         </div>
     `;
+
+    // Immediately hide items with 0 pallets on initial load
+    const listItems = root.querySelectorAll('.content-list-item');
+    listItems.forEach(item => {
+      const seatCount = parseInt(item.getAttribute('data-seat-count') || '0', 10);
+      if (seatCount === 0) {
+        item.style.display = 'none';
+      }
+    });
+
+    // Filter behavior
+    const searchInput = document.getElementById('productSearch');
+    const list = document.getElementById('contentList');
+    if (searchInput && list) {
+      searchInput.addEventListener('input', function () {
+        const q = window.app.normalizeString(this.value.trim().toLowerCase());
+        const isSearching = q.length > 0;
+        const items = list.querySelectorAll('.content-list-item');
+
+        items.forEach(item => {
+          const nameEl = item.querySelector('.content-list-title');
+          const name = window.app.normalizeString((nameEl ? nameEl.textContent : '').toLowerCase());
+          const seatCount = parseInt(item.getAttribute('data-seat-count') || '0', 10);
+
+          if (isSearching) {
+            item.style.display = name.includes(q) ? '' : 'none';
+          } else {
+            item.style.display = seatCount > 0 ? '' : 'none';
+          }
+        });
+      });
+    }
+  }
+
+  // Helper to remove accents/diacritics for searching
+  normalizeString(str) {
+    if (typeof str !== 'string') return '';
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
   searchFromContent(seatNum) {
@@ -444,6 +510,44 @@ class LocationFinder {
     }, 100);
   }
 
+  showGuideMode() {
+    const root = document.getElementById('appRoot');
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="app-container" style="max-width: 700px;">
+        <div class="hyper-u-logo">HYPER U</div>
+        <h1>💡 ${this.t('guideTitle')}</h1>
+        <button onclick="window.app.showModeSelection()" style="margin-bottom: 20px;">← ${this.t('back')}</button>
+
+        <div class="guide-section">
+          <h3>📍 ${this.t('guideFindTitle')}</h3>
+          <p>${this.t('guideFindDesc')}</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>➕ ${this.t('guideAddTitle')}</h3>
+          <p>${this.t('guideAddDesc')}</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>🔎 ${this.t('guideSearchTitle')}</h3>
+          <p>${this.t('guideSearchDesc')}</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>⚙️ ${this.t('guideSettingsTitle')}</h3>
+          <p>${this.t('guideSettingsDesc')}</p>
+        </div>
+      </div>
+    `;
+
+    // Add a simple style for the guide sections
+    const style = document.createElement('style');
+    style.innerHTML = `.guide-section { margin-bottom: 20px; background: #f7fafc; padding: 15px; border-radius: 12px; } .guide-section h3 { margin-top: 0; } .guide-section p { font-size: 15px; line-height: 1.6; color: var(--ink-600); }`;
+    root.appendChild(style);
+  }
+
   showSettings() {
     let typesHTML = '';
     for (let i = 0; i < this.contentTypes.length; i++) {
@@ -453,13 +557,11 @@ class LocationFinder {
       const escapedIcon = this.escapeHtml(icon);
       typesHTML += `
         <div class="type-item">
-        <input type="text" class="icon-input" value="${escapedIcon}" id="icon-${i}" placeholder="🍝" readonly onclick="window.app.showIconPicker(this, ${i})">
-        <input type="text" value="${escapedType}" id="type-${i}">
-        <button onclick="window.app.deleteContentType(${i})" style="background: #dc2626;">
-            ${this.t('delete')}
-        </button>
+          <input type="text" class="icon-input" value="${escapedIcon}" id="icon-${i}" placeholder="🍝" readonly onclick="window.app.showIconPicker(this, ${i})">
+          <input type="text" value="${escapedType}" id="type-${i}">
+          <button class="btn-icon btn-danger" onclick="window.app.deleteContentType(${i})" aria-label="${this.t('delete')}"><span class="material-icons">delete</span></button>
         </div>
-    `;
+      `;
     }
 
     const root = document.getElementById('appRoot');
@@ -474,11 +576,11 @@ class LocationFinder {
         <h2>${this.t('manageContentTypes')}</h2>
         <div id="typesList">${typesHTML}</div>
         
-        <div style="margin-top: 20px; display: flex; gap: 10px; position: relative; flex-wrap: wrap;">
+        <div style="margin-top: 20px; display: flex; gap: 10px; position: relative;">
             <input type="text" id="newIcon" placeholder="🍝" readonly onclick="window.app.showIconPicker(this, -1)" style="width: 80px; text-align: center; font-size: 24px; cursor: pointer;">
             <input type="text" id="newType" placeholder="${this.t('addNewType')}" style="flex:1; min-width:160px;">
             <button onclick="window.app.addContentType()" style="min-width: 120px;">
-            ➕ ${this.t('save')}
+            ➕ ${this.t('Add')}
             </button>
         </div>
 
@@ -500,6 +602,17 @@ class LocationFinder {
             </p>
             <button onclick="window.app.copyDataToClipboard()" style="width: 100%; background: #10b981;">
             📋 ${this.t('copyToClipboard')}
+            </button>
+        </div>
+
+        <div style="background: #f7fafc; padding: 20px; border-radius: 12px; margin-top: 20px;">
+            <h3 style="margin-top: 0; color: #2d3748;">🔄 ${this.t('updateFromSource')}</h3>
+            <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
+            ${this.currentLanguage === 'en' ? 'Click the button below to view the source JSON file on GitHub. You can copy its content to import it manually.' : 'Cliquez sur le bouton ci-dessous pour voir le fichier JSON source sur GitHub. Vous pouvez copier son contenu pour l\'importer manuellement.'}
+            ${this.currentLanguage === 'en' ? 'Click the button to get the latest JSON code for your data. Copy the code from the new tab and paste it in the "Import Data" section below.' : 'Cliquez sur le bouton pour obtenir le dernier code JSON pour vos données. Copiez le code depuis le nouvel onglet et collez-le dans la section "Importer les Données" ci-dessous.'}
+            </p>
+            <button onclick="window.open('https://github.com/elfilaliamin/Stock-Find-Location/blob/main/data.json', '_blank')" style="width: 100%; background: #09a34f;">
+            ↗️ ${this.t('viewSourceFile')}
             </button>
         </div>
 
@@ -550,29 +663,21 @@ class LocationFinder {
 
   escapeHtml(text) {
     if (typeof text !== 'string') return text;
-    const map = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    const map = { '&': '&amp;','<': '&lt;','>': '&gt;','"': '&quot;',"'": '&#039;' };
+    return text.replace(/[&<>"']/g, m => map[m]);
   }
 
-  // Improved Icon Picker: modal with search
+  // Improved Icon Picker: modal with search + Esc to close
   showIconPicker(inputElement, index) {
-    // Save current target
     this.iconPickerTarget = { inputElement, index };
 
     const icons = this.iconList;
     let pickerHTML = `
       <div class="icon-modal-overlay" id="iconModalOverlay">
-        <div class="icon-modal">
+        <div class="icon-modal" role="dialog" aria-modal="true">
           <div class="icon-modal-header">
             <div class="icon-picker-title">${this.currentLanguage === 'en' ? 'Select an icon' : 'Sélectionner une icône'}</div>
-            <input id="iconSearch" placeholder="${this.currentLanguage === 'en' ? 'Search emoji or type...' : 'Rechercher...'}" />
-            <button class="icon-modal-close" id="iconModalClose">×</button>
+            <button class="icon-modal-close" id="iconModalClose" aria-label="Close">×</button>
           </div>
           <div class="icon-picker-grid" id="iconPickerGrid">
     `;
@@ -587,7 +692,6 @@ class LocationFinder {
       </div>
     `;
 
-    // append to dedicated root
     let root = document.getElementById('iconPickerRoot');
     if (!root) {
       root = document.createElement('div');
@@ -599,8 +703,12 @@ class LocationFinder {
     // events
     const rootOverlay = document.getElementById('iconModalOverlay');
     const closeBtn = document.getElementById('iconModalClose');
-    const searchInput = document.getElementById('iconSearch');
     const grid = document.getElementById('iconPickerGrid');
+
+    let removePicker = () => {
+      document.removeEventListener('keydown', onKey);
+      if (root) root.innerHTML = '';
+    };
 
     const onPick = (ev) => {
       const target = ev.target.closest('.icon-picker-item');
@@ -610,38 +718,14 @@ class LocationFinder {
       removePicker();
     };
 
-    const filterIcons = (term) => {
-      term = term.trim().toLowerCase();
-      const items = grid.querySelectorAll('.icon-picker-item');
-      items.forEach(item => {
-        const ic = item.getAttribute('data-icon') || '';
-        const label = ic.toString();
-        if (term === '' || label.includes(term)) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
-      });
-    };
-
-    const removePicker = () => {
-      if (root) root.innerHTML = '';
-    };
+    const onKey = (e) => { if (e.key === 'Escape') removePicker(); };
 
     grid.addEventListener('click', onPick);
     closeBtn.addEventListener('click', removePicker);
     rootOverlay.addEventListener('click', function(e) {
       if (e.target === rootOverlay) removePicker();
     });
-
-    searchInput.addEventListener('input', function(e) {
-      filterIcons(e.target.value);
-    });
-
-    // For mobile: focus search
-    setTimeout(() => {
-      if (searchInput) searchInput.focus();
-    }, 50);
+    document.addEventListener('keydown', onKey);
   }
 
   closeIconPicker() {
@@ -727,7 +811,7 @@ class LocationFinder {
 
   renderMainApp(isAddMode) {
     const modeTitle = isAddMode ? this.t('addContentMode') : this.t('searchLocation');
-    const buttonText = isAddMode ? '▶️ ' + this.t('next') : this.t('searchBtn');
+    const buttonText = isAddMode ? '▶️ ' + this.t('Search') : this.t('searchBtn');
 
     const root = document.getElementById('appRoot');
     if (!root) return;
@@ -745,7 +829,7 @@ class LocationFinder {
         </div>
 
         <div class="info-banner" id="infoBanner">
-            <p class="info-text" id="infoText"></p>
+            <p class="info-text" id="infoText" aria-live="polite"></p>
         </div>
 
         <div id="contentSection" class="content-section"></div>
@@ -926,20 +1010,17 @@ class LocationFinder {
   displayPalletContent(seatNum) {
     const contents = this.seatContents[seatNum] || [];
     const resultsSection = document.getElementById("resultsSection");
-
     if (!resultsSection) return;
 
     let existingDisplay = document.getElementById('palletContentDisplay');
-    if (existingDisplay) {
-      existingDisplay.remove();
-    }
+    if (existingDisplay) existingDisplay.remove();
 
     if (contents.length > 0) {
       let contentItemsHTML = '';
       for (let i = 0; i < contents.length; i++) {
         const c = contents[i];
         const icon = this.productIcons[c] || '📦';
-        contentItemsHTML += `<div class="pallet-content-item">${icon} ${c}</div>`;
+        contentItemsHTML += `<div class="pallet-content-item">${icon} ${this.escapeHtml(c)}</div>`;
       }
 
       const contentHTML = `
@@ -947,7 +1028,7 @@ class LocationFinder {
             <h3>📦 ${this.t('seatContents')} - ${this.t('seatNumber')} ${seatNum}</h3>
             <div class="pallet-content-items">${contentItemsHTML}</div>
         </div>
-        `;
+      `;
 
       const locationMap = document.getElementById('locationMap');
       if (locationMap && locationMap.parentNode) {
@@ -962,7 +1043,7 @@ class LocationFinder {
     const existing = this.seatContents[seatNum] || [];
     let checkboxes = '';
 
-    // Empty special option at top
+    // Empty option
     const isEmptyChecked = existing.length === 0;
     checkboxes += `
       <div class="content-item">
@@ -978,8 +1059,8 @@ class LocationFinder {
       const escapedType = this.escapeHtml(type);
       checkboxes += `
         <div class="content-item">
-        <input type="checkbox" value="${escapedType}" id="content-${i}" ${isChecked ? 'checked' : ''}>
-        <label for="content-${i}"><span class="icon">${icon}</span> ${escapedType}</label>
+          <input type="checkbox" value="${escapedType}" id="content-${i}" ${isChecked ? 'checked' : ''}>
+          <label for="content-${i}"><span class="icon">${icon}</span> ${escapedType}</label>
         </div>
       `;
     }
@@ -990,20 +1071,19 @@ class LocationFinder {
     section.innerHTML = `
         <h3 style="margin-top: 0; color: #2d3748;">📦 ${this.t('selectContent')} - ${this.t('seatNumber')} ${seatNum}</h3>
         <div style="display: grid; gap: 10px; margin-bottom: 20px;">
-        ${checkboxes}
+          ${checkboxes}
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button onclick="window.app.saveContentForSeat()" style="flex: 1; min-width: 160px;">
+          <button onclick="window.app.saveContentForSeat()" style="flex: 1; min-width: 160px;">
             💾 ${this.t('saveContent')}
-        </button>
-        <button onclick="window.app.cancelAddContent()" style="flex: 1; background: #718096; min-width: 160px;">
+          </button>
+          <button onclick="window.app.cancelAddContent()" style="flex: 1; background: #718096; min-width: 160px;">
             ❌ ${this.t('cancel')}
-        </button>
+          </button>
         </div>
     `;
     section.classList.add('show');
 
-    // add behavior: when Empty is checked, uncheck all other boxes; when any other is checked, uncheck Empty
     const emptyCb = document.getElementById('content-empty');
     const otherCbs = section.querySelectorAll('input[type="checkbox"]:not(#content-empty)');
 
@@ -1017,9 +1097,7 @@ class LocationFinder {
 
     otherCbs.forEach(cb => {
       cb.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          if (emptyCb) emptyCb.checked = false;
-        }
+        if (e.target.checked && emptyCb) emptyCb.checked = false;
       });
     });
   }
@@ -1027,7 +1105,6 @@ class LocationFinder {
   saveContentForSeat() {
     const emptyCb = document.getElementById('content-empty');
     if (emptyCb && emptyCb.checked) {
-      // Clear pallet contents
       if (this.seatContents[this.currentSeat]) delete this.seatContents[this.currentSeat];
       this.saveToStorage();
       this.showInfo('✅ ' + this.t('contentSaved'));
@@ -1058,15 +1135,8 @@ class LocationFinder {
     this.seatContents[this.currentSeat] = selected;
     this.saveToStorage();
 
-    const displayList = [];
-    for (let i = 0; i < selected.length; i++) {
-      const c = selected[i];
-      const icon = this.productIcons[c] || '📦';
-      displayList.push(icon + ' ' + c);
-    }
-    const displayText = displayList.join(', ');
-
-    this.showInfo('✅ ' + this.t('contentSaved') + ' - ' + this.t('seatNumber') + ' ' + this.currentSeat + ': ' + displayText);
+    const displayList = selected.map(c => (this.productIcons[c] || '📦') + ' ' + c);
+    this.showInfo('✅ ' + this.t('contentSaved') + ' - ' + this.t('seatNumber') + ' ' + this.currentSeat + ': ' + displayList.join(', '));
 
     const section = document.getElementById('contentSection');
     if (section) section.classList.remove('show');

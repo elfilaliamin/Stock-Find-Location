@@ -290,23 +290,21 @@ class LocationFinder {
   }
 
   async importFromSource() {
-    const sourceUrl = 'https://raw.githubusercontent.com/elfilaliamin/Stock-Find-Location/main/data.json';
+    const sourceUrl = './data.json'; // Fetch from local file
     this.showInfo('⏳ ' + this.t('fetchingData'));
 
     try {
-      const response = await fetch(sourceUrl, { cache: 'no-store' }); // Use no-store to get the latest
+      // Add a cache-busting query parameter to ensure the latest version is fetched
+      const response = await fetch(`${sourceUrl}?v=${new Date().getTime()}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const jsonString = await response.text();
       this.importData(jsonString);
     } catch (error) {
-      console.error('Failed to fetch from source:', error);
+      console.error('Failed to fetch from local data.json:', error);
       this.showInfo('❌ ' + this.t('fetchFailed'), true);
-    } finally {
-      // The info banner from importData will take over, or the error will be shown.
-      // No need to hide the "fetching" message explicitly.
-    }
+    } 
   }
 
   t(key) {
@@ -608,16 +606,12 @@ class LocationFinder {
         <div style="background: #f7fafc; padding: 20px; border-radius: 12px; margin-top: 20px;">
             <h3 style="margin-top: 0; color: #2d3748;">🔄 ${this.t('updateFromSource')}</h3>
             <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
-            ${this.currentLanguage === 'en' ? 'Click the button below to view the source JSON file on GitHub. You can copy its content to import it manually.' : 'Cliquez sur le bouton ci-dessous pour voir le fichier JSON source sur GitHub. Vous pouvez copier son contenu pour l\'importer manuellement.'}
-            ${this.currentLanguage === 'en' ? 'Click the button to get the latest JSON code for your data. Copy the code from the new tab and paste it in the "Import Data" section below.' : 'Cliquez sur le bouton pour obtenir le dernier code JSON pour vos données. Copiez le code depuis le nouvel onglet et collez-le dans la section "Importer les Données" ci-dessous.'}
+            ${this.currentLanguage === 'en' ? 'Get the latest product list by fetching directly from the source file.' : 'Obtenez la liste de produits la plus récente en la récupérant directement depuis le fichier source.'}
             </p>
-            <button onclick="window.open('https://github.com/elfilaliamin/Stock-Find-Location/blob/main/data.json', '_blank')" style="width: 100%; background: #09a34f;">
-            ↗️ ${this.t('viewSourceFile')}
+            <button onclick="window.app.importFromSource()" style="width: 100%; background: #09a34f;">
+            🔄 ${this.t('updateBtn')}
             </button>
-        </div>
-
-        <div style="background: #f7fafc; padding: 20px; border-radius: 12px; margin-top: 20px;">
-            <h3 style="margin-top: 0; color: #2d3748;">📥 ${this.t('importData')}</h3>
+            <h3 style="margin-top: 20px; color: #2d3748;">📥 ${this.t('importData')}</h3>
             <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
             ${this.currentLanguage === 'en' ? 'Paste your JSON data below to import' : 'Collez vos données JSON ci-dessous pour importer'}
             </p>

@@ -1,30 +1,23 @@
 {
-  "seatContents": {},
+  "seatContents": {
+    "1": [
+      "Riz (Rice)"
+    ],
+    "2": [
+      "Riz (Rice)",
+      "Couscous (Couscous)"
+    ],
+    "3": [
+      "Couscous (Couscous)"
+    ],
+    "5": [
+      "Couscous (Couscous)"
+    ]
+  },
   "contentTypes": [
     "Pâtes (Pasta)",
     "Riz (Rice)",
     "Couscous (Couscous)",
-    "Légumineuses (Legumes & beans)",
-    "Huile (Oil)",
-    "Vinaigre (Vinegar)",
-    "Sauces (Ketchup, Mayo, BBQ, Soja, Harissa)",
-    "Conserves (Canned goods)",
-    "Sauce tomate (Tomato sauce)",
-    "Condiments (Pickles, Mustard, etc.)",
-    "Épices (Spices)",
-    "Farine (Flour)",
-    "Sucre (Sugar)",
-    "Sel (Salt)",
-    "Céréales (Cereals)",
-    "Biscuits sucrés (Sweet biscuits)",
-    "Biscuits salés (Crackers)",
-    "Gâteaux (Cakes & snacks)",
-    "Chocolat (Chocolate bars)",
-    "Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)",
-    "Confiture (Jam)",
-    "Miel (Honey)",
-    "Café (Coffee)",
-    "Thé (Tea)",
     "Cacao (Cocoa drink)",
     "Soupes & bouillons (Soups & broths)",
     "Produits variés (Mixed products)"
@@ -33,30 +26,9 @@
     "Pâtes (Pasta)": "🍝",
     "Riz (Rice)": "🍚",
     "Couscous (Couscous)": "🥘",
-    "Légumineuses (Legumes & beans)": "🧆",
-    "Huile (Oil)": "🫒",
-    "Vinaigre (Vinegar)": "🍾",
-    "Sauces (Ketchup, Mayo, BBQ, Soja, Harissa)": "🧴",
-    "Conserves (Canned goods)": "🥫",
-    "Sauce tomate (Tomato sauce)": "🍅",
-    "Condiments (Pickles, Mustard, etc.)": "🥒",
-    "Épices (Spices)": "🌶️",
-    "Farine (Flour)": "🌾",
-    "Sucre (Sugar)": "🍬",
-    "Sel (Salt)": "🧂",
-    "Céréales (Cereals)": "🥣",
-    "Biscuits sucrés (Sweet biscuits)": "🍪",
-    "Biscuits salés (Crackers)": "🥨",
-    "Gâteaux (Cakes & snacks)": "🧁",
-    "Chocolat (Chocolate bars)": "🍫",
-    "Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)": "🥄",
-    "Confiture (Jam)": "🍓",
-    "Miel (Honey)": "🐝",
-    "Café (Coffee)": "☕",
-    "Thé (Tea)": "🍵",
     "Cacao (Cocoa drink)": "🥛",
     "Soupes & bouillons (Soups & broths)": "🍲",
     "Produits variés (Mixed products)": "☢️"
   },
-  "exportDate": "2025-11-03T20:09:49.782Z"
+  "exportDate": "2025-11-04T11:54:53.367Z"
 }

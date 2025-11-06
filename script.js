@@ -175,6 +175,7 @@ class LocationFinder {
       this.productIcons = Object.assign({}, this.defaultProductIcons);
       this.currentSeat = null;
 
+      this.lastUpdated = null;
       // icons list for picker (expanded)
       this.iconList = [
         '🍝','🍚','🫒','🥫','🍪','🧈','🥣','🌾','🧂','☕','🍵','🍫','🍓','🍅',
@@ -201,6 +202,7 @@ class LocationFinder {
         this.seatContents = parsed.seatContents || {};
         this.contentTypes = parsed.contentTypes || this.contentTypes;
         this.productIcons = parsed.productIcons || this.productIcons;
+        this.lastUpdated = parsed.lastUpdated || null;
       }
     } catch (e) {
       console.error('Error loading data:', e);
@@ -212,7 +214,8 @@ class LocationFinder {
       const data = {
         seatContents: this.seatContents,
         contentTypes: this.contentTypes,
-        productIcons: this.productIcons
+        productIcons: this.productIcons,
+        lastUpdated: this.lastUpdated
       };
       localStorage.setItem('hyperUData', JSON.stringify(data));
     } catch (e) {
@@ -225,7 +228,7 @@ class LocationFinder {
       seatContents: this.seatContents,
       contentTypes: this.contentTypes,
       productIcons: this.productIcons,
-      exportDate: new Date().toISOString()
+      lastUpdated: new Date().toISOString()
     };
     return JSON.stringify(data, null, 2);
   }
@@ -267,6 +270,7 @@ class LocationFinder {
         this.contentTypes = data.contentTypes;
         // merge icons with defaults so everything has an emoji
         this.productIcons = Object.assign({}, this.defaultProductIcons, data.productIcons || {});
+        this.lastUpdated = data.lastUpdated || null;
         this.saveToStorage();
         this.showInfo('✅ ' + this.t('dataImported'));
         setTimeout(() => this.showSettings(), 1500);
@@ -546,6 +550,43 @@ class LocationFinder {
     root.appendChild(style);
   }
 
+  formatRelativeDate(dateString) {
+    if (!dateString) return null;
+
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    // To compare days accurately, we ignore the time part of the dates.
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const pastDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    const timeDifference = today.getTime() - pastDate.getTime();
+    const diffDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+    const rtf = new Intl.RelativeTimeFormat(this.currentLanguage, { numeric: 'auto' });
+
+    if (diffDays === 0) {
+        return rtf.format(0, 'day'); // 'today' or 'aujourd'hui'
+    }
+    if (diffDays === 1) {
+        return rtf.format(-1, 'day'); // 'yesterday' or 'hier'
+    }
+    if (diffDays < 7) {
+        return rtf.format(-diffDays, 'day'); // 'X days ago' or 'il y a X jours'
+    }
+    if (diffDays < 14) {
+        const diffWeeks = Math.floor(diffDays / 7);
+        return rtf.format(-diffWeeks, 'week'); // 'last week' or 'il y a 1 semaine'
+    }
+    
+    // If older than two weeks, show the full date
+    return new Intl.DateTimeFormat(this.currentLanguage, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }).format(date);
+  }
+
   showSettings() {
     let typesHTML = '';
     for (let i = 0; i < this.contentTypes.length; i++) {
@@ -561,6 +602,11 @@ class LocationFinder {
         </div>
       `;
     }
+
+    const lastUpdatedDate = this.formatRelativeDate(this.lastUpdated);
+    const lastUpdatedText = lastUpdatedDate 
+        ? `${this.currentLanguage === 'en' ? 'Data from:' : 'Données du :'} <strong>${lastUpdatedDate}</strong>`
+        : '';
 
     const root = document.getElementById('appRoot');
     if (!root) return;
@@ -608,6 +654,9 @@ class LocationFinder {
             <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
             ${this.currentLanguage === 'en' ? 'Get the latest product list by fetching directly from the source file.' : 'Obtenez la liste de produits la plus récente en la récupérant directement depuis le fichier source.'}
             </p>
+            <div class="last-updated-info" style="font-size: 13px; color: var(--ink-600); margin-bottom: 15px; text-align: center;">
+              ${lastUpdatedText}
+            </div>
             <button onclick="window.app.importFromSource()" style="width: 100%; background: #09a34f;">
             🔄 ${this.t('updateBtn')}
             </button>

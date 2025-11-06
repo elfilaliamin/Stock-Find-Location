@@ -205,6 +205,11 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 }
 .container.show{ display:grid; }
 
+/* 12-pallet containers should have 3 columns */
+.C12L, .C12R {
+  grid-template-columns: repeat(3, minmax(60px, 1fr));
+}
+
 /* Cell styles */
 .cell{
   display:flex;
@@ -276,7 +281,8 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
 .type-item input[type="text"]{
   flex:1 1 auto;
-  min-width:0;
+  min-width: 60px;
+  max-width: 450px; /* Prevent it from getting too wide */
 }
 
 .type-item button{ flex:0 0 auto; }
@@ -317,9 +323,9 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
 /* Pallet buttons inside the product list */
 .seat-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-sm); /* 8px */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 8px;
   margin-top: 10px;
 }
 

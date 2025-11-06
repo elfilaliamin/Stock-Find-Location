@@ -132,10 +132,10 @@ const TRANSLATIONS = {
 };
 
 const CONFIG = {
-  emptyCells: ["A3", "A4", "B3", "B4", "C4", "D4"],
-  eightCells: ["A2", "B2", "C3", "D3", "E3", "F3", "G3", "H3"],
-  twelveCells: ["A1", "B1", "C1", "D1", "E1", "E4", "F1", "F4", "G1", "G4", "H1", "H4"],
-  sixteenCells: ["C2", "D2", "E2", "F2", "G2", "H2"],
+  emptyCells: new Set(["A3", "A4", "B3", "B4", "C4", "D4"]),
+  eightCells: new Set(["A2", "B2", "C3", "D3", "E3", "F3", "G3", "H3"]),
+  twelveCells: new Set(["A1", "B1", "C1", "D1", "E1", "E4", "F1", "F4", "G1", "G4", "H1", "H4"]),
+  sixteenCells: new Set(["C2", "D2", "E2", "F2", "G2", "H2"]),
   rows: ["1", "2", "3", "4"],
   cols: ["A", "B", "C", "D", "E", "F", "G", "H"]
 };
@@ -854,7 +854,7 @@ class LocationFinder {
 
   renderMainApp(isAddMode) {
     const modeTitle = isAddMode ? this.t('addContentMode') : this.t('searchLocation');
-    const buttonText = isAddMode ? '▶️ ' + this.t('Search') : this.t('searchBtn');
+    const buttonText = isAddMode ? '▶️ ' + this.t('next') : this.t('searchBtn');
 
     const root = document.getElementById('appRoot');
     if (!root) return;
@@ -898,38 +898,38 @@ class LocationFinder {
             </div>
             </div>
 
-            <h2>📌 ${this.t('positionDetail')}</h2>
+            <h2 style="margin-top: 25px;">💺 ${this.t('positionDetail')}</h2>
             <div class="container C8L" data-capacity="8" data-side="L">
-            <div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div><div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div>
-            <div class="X4 cell" data-pos="4">4</div><div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
+                <div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div><div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div>
+                <div class="X4 cell" data-pos="4">4</div><div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
             </div>
             <div class="container C8R" data-capacity="8" data-side="R">
-            <div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div><div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div>
-            <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div><div class="X4 cell" data-pos="4">4</div>
+                <div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div><div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div>
+                <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div><div class="X4 cell" data-pos="4">4</div>
             </div>
             <div class="container C12L" data-capacity="12" data-side="L">
-            <div class="X12 cell" data-pos="12">12</div><div class="X11 cell" data-pos="11">11</div><div class="X10 cell" data-pos="10">10</div>
-            <div class="X9 cell" data-pos="9">9</div><div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div>
-            <div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div><div class="X4 cell" data-pos="4">4</div>
-            <div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
+                <div class="X12 cell" data-pos="12">12</div><div class="X11 cell" data-pos="11">11</div><div class="X10 cell" data-pos="10">10</div>
+                <div class="X9 cell" data-pos="9">9</div><div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div>
+                <div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div><div class="X4 cell" data-pos="4">4</div>
+                <div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
             </div>
             <div class="container C12R" data-capacity="12" data-side="R">
-            <div class="X10 cell" data-pos="10">10</div><div class="X11 cell" data-pos="11">11</div><div class="X12 cell" data-pos="12">12</div>
-            <div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div><div class="X9 cell" data-pos="9">9</div>
-            <div class="X4 cell" data-pos="4">4</div><div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div>
-            <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div>
+                <div class="X10 cell" data-pos="10">10</div><div class="X11 cell" data-pos="11">11</div><div class="X12 cell" data-pos="12">12</div>
+                <div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div><div class="X9 cell" data-pos="9">9</div>
+                <div class="X4 cell" data-pos="4">4</div><div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div>
+                <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div>
             </div>
             <div class="container C16L" data-capacity="16" data-side="L">
-            <div class="X16 cell" data-pos="16">16</div><div class="X15 cell" data-pos="15">15</div><div class="X14 cell" data-pos="14">14</div><div class="X13 cell" data-pos="13">13</div>
-            <div class="X12 cell" data-pos="12">12</div><div class="X11 cell" data-pos="11">11</div><div class="X10 cell" data-pos="10">10</div><div class="X9 cell" data-pos="9">9</div>
-            <div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div><div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div>
-            <div class="X4 cell" data-pos="4">4</div><div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
+                <div class="X16 cell" data-pos="16">16</div><div class="X15 cell" data-pos="15">15</div><div class="X14 cell" data-pos="14">14</div><div class="X13 cell" data-pos="13">13</div>
+                <div class="X12 cell" data-pos="12">12</div><div class="X11 cell" data-pos="11">11</div><div class="X10 cell" data-pos="10">10</div><div class="X9 cell" data-pos="9">9</div>
+                <div class="X8 cell" data-pos="8">8</div><div class="X7 cell" data-pos="7">7</div><div class="X6 cell" data-pos="6">6</div><div class="X5 cell" data-pos="5">5</div>
+                <div class="X4 cell" data-pos="4">4</div><div class="X3 cell" data-pos="3">3</div><div class="X2 cell" data-pos="2">2</div><div class="X1 cell" data-pos="1">1</div>
             </div>
             <div class="container C16R" data-capacity="16" data-side="R">
-            <div class="X13 cell" data-pos="13">13</div><div class="X14 cell" data-pos="14">14</div><div class="X15 cell" data-pos="15">15</div><div class="X16 cell" data-pos="16">16</div>
-            <div class="X9 cell" data-pos="9">9</div><div class="X10 cell" data-pos="10">10</div><div class="X11 cell" data-pos="11">11</div><div class="X12 cell" data-pos="12">12</div>
-            <div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div><div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div>
-            <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div><div class="X4 cell" data-pos="4">4</div>
+                <div class="X13 cell" data-pos="13">13</div><div class="X14 cell" data-pos="14">14</div><div class="X15 cell" data-pos="15">15</div><div class="X16 cell" data-pos="16">16</div>
+                <div class="X9 cell" data-pos="9">9</div><div class="X10 cell" data-pos="10">10</div><div class="X11 cell" data-pos="11">11</div><div class="X12 cell" data-pos="12">12</div>
+                <div class="X5 cell" data-pos="5">5</div><div class="X6 cell" data-pos="6">6</div><div class="X7 cell" data-pos="7">7</div><div class="X8 cell" data-pos="8">8</div>
+                <div class="X1 cell" data-pos="1">1</div><div class="X2 cell" data-pos="2">2</div><div class="X3 cell" data-pos="3">3</div><div class="X4 cell" data-pos="4">4</div>
             </div>
         </div>
         </div>
@@ -962,10 +962,10 @@ class LocationFinder {
   }
 
   getCellCapacity(id) {
-    if (CONFIG.emptyCells.indexOf(id) >= 0) return 0;
-    if (CONFIG.eightCells.indexOf(id) >= 0) return 8;
-    if (CONFIG.twelveCells.indexOf(id) >= 0) return 12;
-    if (CONFIG.sixteenCells.indexOf(id) >= 0) return 16;
+    if (CONFIG.emptyCells.has(id)) return 0;
+    if (CONFIG.eightCells.has(id)) return 8;
+    if (CONFIG.twelveCells.has(id)) return 12;
+    if (CONFIG.sixteenCells.has(id)) return 16;
     return 0;
   }
 
@@ -987,11 +987,6 @@ class LocationFinder {
     const containers = document.querySelectorAll(".container");
     for (let i = 0; i < containers.length; i++) {
       containers[i].classList.remove("show");
-    }
-
-    const existingDisplay = document.getElementById('palletContentDisplay');
-    if (existingDisplay) {
-      existingDisplay.remove();
     }
   }
 
@@ -1045,20 +1040,6 @@ class LocationFinder {
       contentDisplay = '<br>📦 ' + this.t('seatContents') + ': ' + contentList.join(', ');
     }
 
-    this.showInfo('✅ ' + this.t('found') + ': ' + this.t('seatNumber') + ' ' + num + ' ' + this.t('isInLocation') + ' ' + found.id + ' (' + found.start + '-' + found.end + ')' + contentDisplay);
-
-    this.displayPalletContent(num);
-  }
-
-  displayPalletContent(seatNum) {
-    const contents = this.seatContents[seatNum] || [];
-    const resultsSection = document.getElementById("resultsSection");
-    if (!resultsSection) return;
-
-    let existingDisplay = document.getElementById('palletContentDisplay');
-    if (existingDisplay) existingDisplay.remove();
-
-    if (contents.length > 0) {
       let contentItemsHTML = '';
       for (let i = 0; i < contents.length; i++) {
         const c = contents[i];
@@ -1066,16 +1047,18 @@ class LocationFinder {
         contentItemsHTML += `<div class="pallet-content-item">${icon} ${this.escapeHtml(c)}</div>`;
       }
 
-      const contentHTML = `
-        <div id="palletContentDisplay" class="pallet-content-display">
-            <h3>📦 ${this.t('seatContents')} - ${this.t('seatNumber')} ${seatNum}</h3>
-            <div class="pallet-content-items">${contentItemsHTML}</div>
-        </div>
-      `;
+    const infoText = '✅ ' + this.t('found') + ': ' + this.t('seatNumber') + ' ' + num + ' ' + this.t('isInLocation') + ' ' + found.id + ' (' + found.start + '-' + found.end + ')';
+    this.showInfo(infoText);
 
-      const locationMap = document.getElementById('locationMap');
-      if (locationMap && locationMap.parentNode) {
-        locationMap.insertAdjacentHTML('afterend', contentHTML);
+    // The resultsSection variable is already declared above.
+    if (resultsSection) {
+      let existingDisplay = resultsSection.querySelector('.pallet-content-display');
+      if (existingDisplay) existingDisplay.remove();
+
+      if (contents.length > 0) {
+        const contentHTML = `<div class="pallet-content-display"><h3>📦 ${this.t('seatContents')} - ${this.t('seatNumber')} ${num}</h3><div class="pallet-content-items">${contentItemsHTML}</div></div>`;
+        const locationMap = resultsSection.querySelector('#locationMap');
+        if (locationMap) locationMap.insertAdjacentHTML('afterend', contentHTML);
       }
     }
   }
@@ -1212,18 +1195,20 @@ class LocationFinder {
     const box = document.querySelector('.' + cell.id + '.box');
     if (box) box.classList.add("highlight");
 
+    // Determine side: 'R' for A, C, E, G; 'L' for others.
     const section = cell.id.charAt(0);
-    const side = (section === "A" || section === "C" || section === "E" || section === "G") ? "R" : "L";
+    const side = ["A", "C", "E", "G"].includes(section) ? "R" : "L";
+
+    // Select the correct container based on capacity and side.
     const container = document.querySelector('.C' + cell.capacity + side);
 
     if (container) {
-      const cells = container.querySelectorAll('.cell[data-pos]');
-      for (let i = 0; i < cells.length; i++) {
-        const cellEl = cells[i];
-        const position = parseInt(cellEl.getAttribute('data-pos'));
+      // Populate the actual pallet numbers in this container based on its layout.
+      container.querySelectorAll('.cell[data-pos]').forEach(cellEl => {
+        const position = parseInt(cellEl.dataset.pos);
         const actualNumber = cell.start + position - 1;
         cellEl.textContent = actualNumber;
-      }
+      });
 
       container.classList.add("show");
       const positionIndex = seatNum - cell.start + 1;

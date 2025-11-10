@@ -140,6 +140,14 @@ const CONFIG = {
   cols: ["A", "B", "C", "D", "E", "F", "G", "H"]
 };
 
+// Firebase Database imports
+import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const db = window.firebaseDB; // Get DB instance from window
+
+// A reference to the root of our data in Realtime Database
+const dbRef = ref(db, 'hyperUData');
+
 class LocationFinder {
   constructor() {
     try {
@@ -170,9 +178,8 @@ class LocationFinder {
       this.currentLanguage = localStorage.getItem('hyperULang') || 'en'; // persist language
       this.currentMode = null;
       this.seatContents = {};
+      this.contentTypes = [];
       this.productIcons = {};
-      this.contentTypes = this.defaultContentTypes.slice();
-      this.productIcons = Object.assign({}, this.defaultProductIcons);
       this.currentSeat = null;
 
       this.lastUpdated = null;
@@ -185,42 +192,56 @@ class LocationFinder {
         '🥟','🥠','🥡','🍱','🍘','🍙','🍛','🍜','🍣','🍱'
       ];
 
-      this.loadFromStorage();
-      this.showLanguageSelection();
-
     } catch (e) {
       console.error('Initialization error:', e);
       document.getElementById('appRoot').innerHTML = '<div class="app-container"><h1>Error loading app</h1><p>' + e.message + '</p></div>';
     }
   }
 
-  loadFromStorage() {
+  async init() {
+    await this.loadFromFirebase();
+    this.showLanguageSelection();
+  }
+
+  async loadFromFirebase() {
     try {
-      const saved = localStorage.getItem('hyperUData');
-      if (saved) {
-        const parsed = JSON.parse(saved);
+      const snapshot = await get(dbRef);
+      if (snapshot.exists()) {
+        const parsed = snapshot.val();
         this.seatContents = parsed.seatContents || {};
-        this.contentTypes = parsed.contentTypes || this.contentTypes;
-        this.productIcons = parsed.productIcons || this.productIcons;
+        this.contentTypes = parsed.contentTypes || [];
+        this.productIcons = parsed.productIcons || {};
         this.lastUpdated = parsed.lastUpdated || null;
+      }
+      // If the database is empty, initialize with defaults.
+      if (this.contentTypes.length === 0) {
+        this.resetToDefaults();
       }
     } catch (e) {
       console.error('Error loading data:', e);
+      this.showInfo('❌ Error loading data from Firebase.', true);
     }
   }
 
-  saveToStorage() {
+  async saveToFirebase() {
     try {
       const data = {
         seatContents: this.seatContents,
         contentTypes: this.contentTypes,
         productIcons: this.productIcons,
-        lastUpdated: this.lastUpdated
+        lastUpdated: new Date().toISOString()
       };
-      localStorage.setItem('hyperUData', JSON.stringify(data));
+      await set(dbRef, data);
     } catch (e) {
       console.error('Error saving data:', e);
+      this.showInfo('❌ Error saving data to Firebase.', true);
     }
+  }
+
+  resetToDefaults() {
+    this.contentTypes = this.defaultContentTypes.slice();
+    this.productIcons = Object.assign({}, this.defaultProductIcons);
+    this.seatContents = {};
   }
 
   exportData() {
@@ -271,7 +292,7 @@ class LocationFinder {
         // merge icons with defaults so everything has an emoji
         this.productIcons = Object.assign({}, this.defaultProductIcons, data.productIcons || {});
         this.lastUpdated = data.lastUpdated || null;
-        this.saveToStorage();
+        this.saveToFirebase();
         this.showInfo('✅ ' + this.t('dataImported'));
         setTimeout(() => this.showSettings(), 1500);
       } else {
@@ -686,17 +707,18 @@ class LocationFinder {
   }
 
   // Clear all data and reset to defaults
-  clearAllData() {
+  async clearAllData() {
     const confirmClear = window.confirm(this.currentLanguage === 'en'
       ? 'Clear all data? This will reset pallets, types and icons to defaults.'
       : 'Effacer toutes les données ? Cela réinitialisera les palettes, types et icônes par défaut.');
     if (!confirmClear) return;
 
     this.seatContents = {};
-    this.contentTypes = this.defaultContentTypes.slice();
-    this.productIcons = Object.assign({}, this.defaultProductIcons);
+    this.contentTypes = [];
+    this.productIcons = {};
+    this.lastUpdated = null;
     try {
-      localStorage.removeItem('hyperUData');
+      await remove(dbRef);
     } catch (e) {
       console.error('clear storage error', e);
     }
@@ -800,7 +822,7 @@ class LocationFinder {
       this.productIcons[value] = icon;
       input.value = '';
       if (iconInput) iconInput.value = '';
-      this.saveToStorage();
+      this.saveToFirebase();
       this.showInfo(this.t('typeAdded'));
       this.showSettings();
     }
@@ -825,7 +847,7 @@ class LocationFinder {
       }
     }
 
-    this.saveToStorage();
+    this.saveToFirebase();
     this.showInfo(this.t('typeDeleted'));
     this.showSettings();
   }
@@ -848,7 +870,7 @@ class LocationFinder {
 
     this.contentTypes = newTypes;
     this.productIcons = newIcons;
-    this.saveToStorage();
+    this.saveToFirebase();
     this.showModeSelection();
   }
 
@@ -1132,7 +1154,7 @@ class LocationFinder {
     const emptyCb = document.getElementById('content-empty');
     if (emptyCb && emptyCb.checked) {
       if (this.seatContents[this.currentSeat]) delete this.seatContents[this.currentSeat];
-      this.saveToStorage();
+      this.saveToFirebase();
       this.showInfo('✅ ' + this.t('contentSaved'));
       const section = document.getElementById('contentSection');
       if (section) section.classList.remove('show');
@@ -1159,7 +1181,7 @@ class LocationFinder {
     }
 
     this.seatContents[this.currentSeat] = selected;
-    this.saveToStorage();
+    this.saveToFirebase();
 
     const displayList = selected.map(c => (this.productIcons[c] || '📦') + ' ' + c);
     this.showInfo('✅ ' + this.t('contentSaved') + ' - ' + this.t('seatNumber') + ' ' + this.currentSeat + ': ' + displayList.join(', '));
@@ -1288,10 +1310,15 @@ class LocationFinder {
 }
 
 window.app = null;
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
+
+// Wait for the DOM and Firebase to be ready
+document.addEventListener('DOMContentLoaded', async () => {
+  // The firebaseDB is initialized in index.html and attached to window
+  if (window.firebaseDB) {
     window.app = new LocationFinder();
-  });
-} else {
-  window.app = new LocationFinder();
-}
+    await window.app.init(); // Initialize and load data
+  } else {
+    console.error("Firebase was not initialized. Check your index.html setup.");
+    document.getElementById('appRoot').innerHTML = '<div class="app-container"><h1>Error: Firebase not loaded</h1></div>';
+  }
+});

@@ -1,3 +1,20 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyATa65iD91BSq_NQEmSscWDQT86XVDhZOQ",
+  authDomain: "warehouse-locator-da21f.firebaseapp.com",
+  projectId: "warehouse-locator-da21f",
+  storageBucket: "warehouse-locator-da21f.firebasestorage.app",
+  messagingSenderId: "796897325629",
+  appId: "1:796897325629:web:535e3169cc345091f27054"
+};
+
+// Initialize Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+const database = getDatabase(firebaseApp);
+
 const TRANSLATIONS = {
   en: {
     appTitle: "Warehouse Locator - Hyper U",
@@ -62,7 +79,10 @@ const TRANSLATIONS = {
     updateBtn: "Fetch Latest Data",
     fetchingData: "Fetching latest data...",
     fetchFailed: "Failed to fetch data. Check connection or try again.",
-    viewSourceFile: "View source file on GitHub"
+    viewSourceFile: "View source file on GitHub",
+    enterPassword: "Enter password:",
+    incorrectPassword: "Incorrect password.",
+    submit: "Submit"
   },
   fr: {
     appTitle: "Localisateur de Palettes - Hyper U",
@@ -127,7 +147,10 @@ const TRANSLATIONS = {
     updateBtn: "Récupérer les données",
     fetchingData: "Récupération des données...",
     fetchFailed: "Échec de la récupération. Vérifiez la connexion ou réessayez.",
-    viewSourceFile: "Voir le fichier source sur GitHub"
+    viewSourceFile: "Voir le fichier source sur GitHub",
+    enterPassword: "Entrez le mot de passe :",
+    incorrectPassword: "Mot de passe incorrect.",
+    submit: "Valider"
   }
 };
 
@@ -139,14 +162,6 @@ const CONFIG = {
   rows: ["1", "2", "3", "4"],
   cols: ["A", "B", "C", "D", "E", "F", "G", "H"]
 };
-
-// Firebase Database imports
-import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-const db = window.firebaseDB; // Get DB instance from window
-
-// A reference to the root of our data in Realtime Database
-const dbRef = ref(db, 'hyperUData');
 
 class LocationFinder {
   constructor() {
@@ -178,9 +193,11 @@ class LocationFinder {
       this.currentLanguage = localStorage.getItem('hyperULang') || 'en'; // persist language
       this.currentMode = null;
       this.seatContents = {};
-      this.contentTypes = [];
       this.productIcons = {};
+      this.contentTypes = this.defaultContentTypes.slice();
+      this.productIcons = Object.assign({}, this.defaultProductIcons);
       this.currentSeat = null;
+      this.password = 'pgc01';
 
       this.lastUpdated = null;
       // icons list for picker (expanded)
@@ -192,56 +209,49 @@ class LocationFinder {
         '🥟','🥠','🥡','🍱','🍘','🍙','🍛','🍜','🍣','🍱'
       ];
 
+      this.dbRef = ref(database, 'warehouseData');
+      this.listenForDataChanges();
+      this.showLanguageSelection();
+
     } catch (e) {
       console.error('Initialization error:', e);
       document.getElementById('appRoot').innerHTML = '<div class="app-container"><h1>Error loading app</h1><p>' + e.message + '</p></div>';
     }
   }
 
-  async init() {
-    await this.loadFromFirebase();
-    this.showLanguageSelection();
-  }
-
-  async loadFromFirebase() {
-    try {
-      const snapshot = await get(dbRef);
-      if (snapshot.exists()) {
-        const parsed = snapshot.val();
-        this.seatContents = parsed.seatContents || {};
-        this.contentTypes = parsed.contentTypes || [];
-        this.productIcons = parsed.productIcons || {};
-        this.lastUpdated = parsed.lastUpdated || null;
+  listenForDataChanges() {
+    onValue(this.dbRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        this.seatContents = data.seatContents || {};
+        this.contentTypes = data.contentTypes || this.defaultContentTypes.slice();
+        this.productIcons = data.productIcons || Object.assign({}, this.defaultProductIcons);
+        this.lastUpdated = data.lastUpdated || null;
+      } else {
+        // If no data in Firebase, initialize with defaults
+        this.seatContents = {};
+        this.contentTypes = this.defaultContentTypes.slice();
+        this.productIcons = Object.assign({}, this.defaultProductIcons);
+        this.lastUpdated = null;
       }
-      // If the database is empty, initialize with defaults.
-      if (this.contentTypes.length === 0) {
-        this.resetToDefaults();
-      }
-    } catch (e) {
-      console.error('Error loading data:', e);
-      this.showInfo('❌ Error loading data from Firebase.', true);
-    }
+      // If a view is active, refresh it to show the new data
+      if (this.currentMode) this.selectMode(this.currentMode);
+    });
   }
 
-  async saveToFirebase() {
-    try {
-      const data = {
-        seatContents: this.seatContents,
-        contentTypes: this.contentTypes,
-        productIcons: this.productIcons,
-        lastUpdated: new Date().toISOString()
-      };
-      await set(dbRef, data);
-    } catch (e) {
-      console.error('Error saving data:', e);
-      this.showInfo('❌ Error saving data to Firebase.', true);
-    }
-  }
-
-  resetToDefaults() {
-    this.contentTypes = this.defaultContentTypes.slice();
-    this.productIcons = Object.assign({}, this.defaultProductIcons);
-    this.seatContents = {};
+  /**
+   * Saves the entire data object to Firebase.
+   * This is a "heavy" operation and should only be used for major changes
+   * like data import or clearing all data.
+   */
+  async saveAllData() {
+    const data = {
+      seatContents: this.seatContents,
+      contentTypes: this.contentTypes,
+      productIcons: this.productIcons,
+      lastUpdated: new Date().toISOString()
+    };
+    return set(this.dbRef, data);
   }
 
   exportData() {
@@ -292,7 +302,7 @@ class LocationFinder {
         // merge icons with defaults so everything has an emoji
         this.productIcons = Object.assign({}, this.defaultProductIcons, data.productIcons || {});
         this.lastUpdated = data.lastUpdated || null;
-        this.saveToFirebase();
+        this.saveAllData(); // This will now save to Firebase
         this.showInfo('✅ ' + this.t('dataImported'));
         setTimeout(() => this.showSettings(), 1500);
       } else {
@@ -369,26 +379,102 @@ class LocationFinder {
     root.innerHTML = `
         <div class="app-container" style="max-width: 600px;">
         <div class="hyper-u-logo">HYPER U</div>
+        
+        <div class="info-banner" id="infoBanner">
+            <p class="info-text" id="infoText" aria-live="polite"></p>
+        </div>
+
         <h1 style="text-align: center;">📦 ${this.t('selectMode')}</h1>
         <div class="mode-grid">
             <button class="mode-button" onclick="window.app.selectMode('find')">
             📍 ${this.t('findLocation')}
             </button>
-            <button class="mode-button" onclick="window.app.selectMode('add')">
-            ➕ ${this.t('addContent')}
-            </button>
             <button class="mode-button" onclick="window.app.selectMode('search-content')">
             🔎 ${this.t('searchByContent')}
             </button>
-            <button class="mode-button" onclick="window.app.showSettings()">
+            <button class="mode-button" onclick="window.app.showPasswordModal('add')">
+            ➕ ${this.t('addContent')}
+            </button>
+            <button class="mode-button" onclick="window.app.showPasswordModal('settings')">
             ⚙️ ${this.t('settings')}
             </button>
             <button class="mode-button" onclick="window.app.selectMode('guide')" style="grid-column: 1 / -1;">
             💡 ${this.t('howToUse')}
             </button>
         </div>
+        <div id="modalRoot"></div>
         </div>
     `;
+  }
+
+  showPasswordModal(mode) {
+    const authTime = localStorage.getItem('hyperUPasswordAuthTime');
+    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+
+    if (authTime && (new Date().getTime() - parseInt(authTime)) < oneHour) {
+      if (mode === 'add') {
+        this.selectMode('add');
+      } else if (mode === 'settings') {
+        this.showSettings();
+      }
+      return; // Bypass the modal if already authenticated
+    }
+
+
+    const modalRoot = document.getElementById('modalRoot');
+    if (!modalRoot) return;
+
+    modalRoot.innerHTML = `
+      <div class="password-modal-overlay" id="passwordOverlay">
+        <div class="password-modal">
+          <h3>${this.t('enterPassword')}</h3>
+          <input type="password" id="passwordInput" autofocus>
+          <div class="password-modal-actions">
+            <button onclick="window.app.hidePasswordModal()" style="background: var(--ink-500);">${this.t('cancel')}</button>
+            <button id="passwordSubmitBtn">${this.t('submit')}</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const overlay = document.getElementById('passwordOverlay');
+    const input = document.getElementById('passwordInput');
+    const submitBtn = document.getElementById('passwordSubmitBtn');
+
+    const submit = () => this.checkPassword(mode);
+
+    submitBtn.addEventListener('click', submit);
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') submit();
+    });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) this.hidePasswordModal();
+    });
+  }
+
+  hidePasswordModal() {
+    const modalRoot = document.getElementById('modalRoot');
+    if (modalRoot) modalRoot.innerHTML = '';
+  }
+
+  checkPassword(mode) {
+    const input = document.getElementById('passwordInput');
+    if (!input) return;
+
+    const enteredPassword = input.value;
+    if (enteredPassword === this.password) {
+      localStorage.setItem('hyperUPasswordAuthTime', new Date().getTime());
+      this.hidePasswordModal();
+      if (mode === 'add') {
+        this.selectMode('add');
+      } else if (mode === 'settings') {
+        this.showSettings();
+      }
+    } else if (enteredPassword !== null) { // if user didn't click cancel
+      this.showInfo('❌ ' + this.t('incorrectPassword'), true);
+      input.value = '';
+      input.focus();
+    }
   }
 
   selectMode(mode) {
@@ -707,21 +793,16 @@ class LocationFinder {
   }
 
   // Clear all data and reset to defaults
-  async clearAllData() {
+  clearAllData() {
     const confirmClear = window.confirm(this.currentLanguage === 'en'
       ? 'Clear all data? This will reset pallets, types and icons to defaults.'
       : 'Effacer toutes les données ? Cela réinitialisera les palettes, types et icônes par défaut.');
     if (!confirmClear) return;
 
     this.seatContents = {};
-    this.contentTypes = [];
-    this.productIcons = {};
-    this.lastUpdated = null;
-    try {
-      await remove(dbRef);
-    } catch (e) {
-      console.error('clear storage error', e);
-    }
+    this.contentTypes = this.defaultContentTypes.slice();
+    this.productIcons = Object.assign({}, this.defaultProductIcons);
+    this.saveAllData(); // This will overwrite Firebase with default data
     this.showInfo('✅ ' + this.t('clearedSuccess'));
     setTimeout(() => this.showSettings(), 800);
   }
@@ -809,7 +890,7 @@ class LocationFinder {
     this.closeIconPicker();
   }
 
-  addContentType() {
+  async addContentType() {
     const input = document.getElementById('newType');
     const iconInput = document.getElementById('newIcon');
     if (!input) return;
@@ -818,11 +899,16 @@ class LocationFinder {
     const icon = iconInput ? iconInput.value.trim() || '📦' : '📦';
 
     if (value) {
+      // Update local state first
       this.contentTypes.push(value);
       this.productIcons[value] = icon;
+
+      // Granularly update Firebase
+      await set(ref(database, 'warehouseData/contentTypes'), this.contentTypes);
+      await set(ref(database, `warehouseData/productIcons/${value}`), icon);
+
       input.value = '';
       if (iconInput) iconInput.value = '';
-      this.saveToFirebase();
       this.showInfo(this.t('typeAdded'));
       this.showSettings();
     }
@@ -847,12 +933,12 @@ class LocationFinder {
       }
     }
 
-    this.saveToFirebase();
+    this.saveAllData(); // Use saveAllData here as it affects multiple parts of the data structure
     this.showInfo(this.t('typeDeleted'));
     this.showSettings();
   }
 
-  saveSettings() {
+  async saveSettings() {
     const inputs = document.querySelectorAll('[id^="type-"]');
     const iconInputs = document.querySelectorAll('[id^="icon-"]');
 
@@ -870,7 +956,10 @@ class LocationFinder {
 
     this.contentTypes = newTypes;
     this.productIcons = newIcons;
-    this.saveToFirebase();
+    // Granularly update Firebase
+    await set(ref(database, 'warehouseData/contentTypes'), this.contentTypes);
+    await set(ref(database, 'warehouseData/productIcons'), this.productIcons);
+    await set(ref(database, 'warehouseData/lastUpdated'), new Date().toISOString());
     this.showModeSelection();
   }
 
@@ -1150,12 +1239,15 @@ class LocationFinder {
     });
   }
 
-  saveContentForSeat() {
+  async saveContentForSeat() {
     const emptyCb = document.getElementById('content-empty');
     if (emptyCb && emptyCb.checked) {
       if (this.seatContents[this.currentSeat]) delete this.seatContents[this.currentSeat];
-      this.saveToFirebase();
+      // Granularly update Firebase by removing the specific pallet
+      await set(ref(database, `warehouseData/seatContents/${this.currentSeat}`), null);
+      await set(ref(database, 'warehouseData/lastUpdated'), new Date().toISOString());
       this.showInfo('✅ ' + this.t('contentSaved'));
+
       const section = document.getElementById('contentSection');
       if (section) section.classList.remove('show');
       const input = document.getElementById('searchInput');
@@ -1181,7 +1273,10 @@ class LocationFinder {
     }
 
     this.seatContents[this.currentSeat] = selected;
-    this.saveToFirebase();
+    // Granularly update Firebase with only the changed pallet's data
+    await set(ref(database, `warehouseData/seatContents/${this.currentSeat}`), selected);
+    await set(ref(database, 'warehouseData/lastUpdated'), new Date().toISOString());
+
 
     const displayList = selected.map(c => (this.productIcons[c] || '📦') + ' ' + c);
     this.showInfo('✅ ' + this.t('contentSaved') + ' - ' + this.t('seatNumber') + ' ' + this.currentSeat + ': ' + displayList.join(', '));
@@ -1310,15 +1405,10 @@ class LocationFinder {
 }
 
 window.app = null;
-
-// Wait for the DOM and Firebase to be ready
-document.addEventListener('DOMContentLoaded', async () => {
-  // The firebaseDB is initialized in index.html and attached to window
-  if (window.firebaseDB) {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
     window.app = new LocationFinder();
-    await window.app.init(); // Initialize and load data
-  } else {
-    console.error("Firebase was not initialized. Check your index.html setup.");
-    document.getElementById('appRoot').innerHTML = '<div class="app-container"><h1>Error: Firebase not loaded</h1></div>';
-  }
-});
+  });
+} else {
+  window.app = new LocationFinder();
+}

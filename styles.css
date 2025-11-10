@@ -66,6 +66,7 @@ body{
   border-radius:var(--radius-lg);
   padding:28px;
   box-shadow:var(--shadow-lg);
+  position: relative; /* For positioning the language switcher */
   overflow-x:hidden;
 }
 body:not(.has-results) .app-container{ max-width:680px; }
@@ -442,4 +443,50 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 
 .search-section{
   margin-bottom: 4px;
+}
+
+/* ---------- Password Modal ---------- */
+.password-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 32, 44, 0.7);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 15vh 15px 15px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.password-modal {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn .2s ease-out;
+}
+
+.password-modal h3 {
+  margin: 0 0 var(--gap-lg);
+  color: var(--ink-800);
+  font-size: 20px;
+  text-align: center;
+}
+
+.password-modal input[type="password"] {
+  width: 100%;
+  margin-bottom: var(--gap-lg);
+  text-align: center;
+  font-size: 18px;
+}
+
+.password-modal-actions {
+  display: flex;
+  gap: var(--gap-md);
+}
+
+.password-modal-actions button {
+  flex: 1;
 }

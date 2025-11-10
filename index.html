@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlTag">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -9,33 +9,18 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css" />
-
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyATa65iD91BSq_NQEmSscWDQT86XVDhZOQ",
-      authDomain: "warehouse-locator-da21f.firebaseapp.com",
-      projectId: "warehouse-locator-da21f",
-      storageBucket: "warehouse-locator-da21f.firebasestorage.app",
-      messagingSenderId: "796897325629",
-      appId: "1:796897325629:web:535e3169cc345091f27054",
-      databaseURL: "https://warehouse-locator-da21f-default-rtdb.firebaseio.com"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    // Make the database instance available globally for the main script
-    window.firebaseDB = getDatabase(app);
-  </script>
 </head>
 
 <body>
   <div id="appRoot"></div>
 
-  <script type="module" src="script.js?v=1.2"></script>
+  <!-- Icon picker root (mounted by JS) -->
+  <div id="iconPickerRoot"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js" type="module"></script>
+
+  <script src="script.js?v=1.2" type="module"></script>
 </body>
 </html>

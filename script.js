@@ -172,19 +172,19 @@ class LocationFinder {
         "Huile (Oil)","Vinaigre (Vinegar)","Sauces (Ketchup, Mayo, BBQ, Soja, Harissa)",
         "Conserves (Canned goods)","Sauce tomate (Tomato sauce)","Condiments (Pickles, Mustard, etc.)",
         "Épices (Spices)","Farine (Flour)","Sucre (Sugar)","Sel (Salt)","Céréales (Cereals)",
-        "Biscuits sucrés (Sweet biscuits)","Biscuits salés (Crackers)","Gâteaux (Cakes & snacks)",
+        "Biscuits sucrés (Sweet biscuits)","Biscuits salés (Crackers)","Pâtisseries (Pastries)","Bonbon (candy)","Madeleines",
         "Chocolat (Chocolate bars)","Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)",
         "Confiture (Jam)","Miel (Honey)","Café (Coffee)","Thé (Tea)","Cacao (Cocoa drink)",
         "Soupes & bouillons (Soups & broths)","Produits variés (Mixed products)"
       ];
       this.defaultProductIcons = {
-        "Pâtes (Pasta)": "🍝","Riz (Rice)": "🍚","Couscous (Couscous)": "🥘",
+        "Pâtes (Pasta)": "🍝","Riz (Rice)": "🍚","Couscous (Couscous)": "🥘","Bonbon (candy)": "🍬","Madeleines": "🧈",
         "Légumineuses (Legumes & beans)": "🧆","Huile (Oil)": "🫒","Vinaigre (Vinegar)": "🍾",
         "Sauces (Ketchup, Mayo, BBQ, Soja, Harissa)": "🧴","Conserves (Canned goods)": "🥫",
         "Sauce tomate (Tomato sauce)": "🍅","Condiments (Pickles, Mustard, etc.)": "🥒",
         "Épices (Spices)": "🌶️","Farine (Flour)": "🌾","Sucre (Sugar)": "🍬","Sel (Salt)": "🧂",
         "Céréales (Cereals)": "🥣","Biscuits sucrés (Sweet biscuits)": "🍪","Biscuits salés (Crackers)": "🥨",
-        "Gâteaux (Cakes & snacks)": "🧁","Chocolat (Chocolate bars)": "🍫","Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)": "🥄",
+        "Pâtisseries (Pastries)": "🧁","Chocolat (Chocolate bars)": "🍫","Pâte à tartiner (Spreads - Nutella, Cocoa & Nuts)": "🥄",
         "Confiture (Jam)": "🍓","Miel (Honey)": "🐝","Café (Coffee)": "☕","Thé (Tea)": "🍵",
         "Cacao (Cocoa drink)": "🥛","Soupes & bouillons (Soups & broths)": "🍲","Produits variés (Mixed products)": "☢️"
       };
@@ -203,10 +203,11 @@ class LocationFinder {
       // icons list for picker (expanded)
       this.iconList = [
         '🍝','🍚','🫒','🥫','🍪','🧈','🥣','🌾','🧂','☕','🍵','🍫','🍓','🍅',
+        '🍚','🫒','🥫','🍪','🍬','🧈','🥣','🌾','🧂','☕','🍵','🍫','🍓','🍅',
         '🍞','🥐','🧀','🥛','🥤','🍷','🍺','🥃','🧃','🧊','🥗','🥙','🌮','🌯',
         '🥪','🍔','🍟','🍕','🌭','🥓','🥚','🍳','🧇','🥞','🍯','🥜','🌰','🍄',
-        '🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🧄','🧅','🥔','🍠','🫘','🥨','🥯',
-        '🥟','🥠','🥡','🍱','🍘','🍙','🍛','🍜','🍣','🍱'
+        '🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🧄','🧅','🥔','🍠','🥨','🥯',
+        '🥟','🥠','🥡','🍱','🍘','🍙','🍛','🍜','🍣','🍭','🍬'
       ];
 
       this.dbRef = ref(database, 'warehouseData');

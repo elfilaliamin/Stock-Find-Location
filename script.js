@@ -225,7 +225,20 @@ class LocationFinder {
       if (data) {
         this.seatContents = data.seatContents || {};
         this.contentTypes = data.contentTypes || this.defaultContentTypes.slice();
-        this.productIcons = data.productIcons || Object.assign({}, this.defaultProductIcons);
+        
+        // Reconstruct productIcons using original names as keys, mapping from sanitized Firebase keys
+        this.productIcons = {};
+        const firebaseProductIcons = data.productIcons || {};
+        for (const typeName of this.contentTypes) {
+          const sanitizedKey = this.sanitizeFirebaseKey(typeName);
+          if (firebaseProductIcons.hasOwnProperty(sanitizedKey)) {
+            this.productIcons[typeName] = firebaseProductIcons[sanitizedKey];
+          } else {
+            // Fallback to default icon if not found in Firebase, or if typeName is new
+            this.productIcons[typeName] = this.defaultProductIcons[typeName] || '📦';
+          }
+        }
+
         this.lastUpdated = data.lastUpdated || null;
       } else {
         // If no data in Firebase, initialize with defaults
@@ -233,10 +246,16 @@ class LocationFinder {
         this.contentTypes = this.defaultContentTypes.slice();
         this.productIcons = Object.assign({}, this.defaultProductIcons);
         this.lastUpdated = null;
+        // Also save these defaults to Firebase with sanitized keys
+        this.saveAllData();
       }
       // If a view is active, refresh it to show the new data
       if (this.currentMode) this.selectMode(this.currentMode);
     });
+  }
+
+  sanitizeFirebaseKey(key) {
+    return key.replace(/[.#$/[\]\s(),]/g, '_'); // Replace invalid Firebase key characters and common problematic ones
   }
 
   /**
@@ -245,10 +264,16 @@ class LocationFinder {
    * like data import or clearing all data.
    */
   async saveAllData() {
+    const sanitizedProductIcons = {};
+    for (const typeName in this.productIcons) {
+      const sanitizedKey = this.sanitizeFirebaseKey(typeName);
+      sanitizedProductIcons[sanitizedKey] = this.productIcons[typeName];
+    }
+
     const data = {
       seatContents: this.seatContents,
       contentTypes: this.contentTypes,
-      productIcons: this.productIcons,
+      productIcons: sanitizedProductIcons, // Send the sanitized version to Firebase
       lastUpdated: new Date().toISOString()
     };
     return set(this.dbRef, data);
@@ -743,40 +768,6 @@ class LocationFinder {
                 🧹 ${this.t('clearData')}
             </button>
         </div>
-
-        <h2 style="margin-top: 30px;">${this.t('dataManagement')}</h2>
-        
-        <div style="background: #f7fafc; padding: 20px; border-radius: 12px;">
-            <h3 style="margin-top: 0; color: #2d3748;">📤 ${this.t('exportData')}</h3>
-            <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
-            ${this.currentLanguage === 'en' ? 'Copy your data as JSON to share or backup' : 'Copiez vos données au format JSON pour partager ou sauvegarder'}
-            </p>
-            <button onclick="window.app.copyDataToClipboard()" style="width: 100%; background: #10b981;">
-            📋 ${this.t('copyToClipboard')}
-            </button>
-        </div>
-
-        <div style="background: #f7fafc; padding: 20px; border-radius: 12px; margin-top: 20px;">
-            <h3 style="margin-top: 0; color: #2d3748;">🔄 ${this.t('updateFromSource')}</h3>
-            <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
-            ${this.currentLanguage === 'en' ? 'Get the latest product list by fetching directly from the source file.' : 'Obtenez la liste de produits la plus récente en la récupérant directement depuis le fichier source.'}
-            </p>
-            <div class="last-updated-info" style="font-size: 13px; color: var(--ink-600); margin-bottom: 15px; text-align: center;">
-              ${lastUpdatedText}
-            </div>
-            <button onclick="window.app.importFromSource()" style="width: 100%; background: #09a34f;">
-            🔄 ${this.t('updateBtn')}
-            </button>
-            <h3 style="margin-top: 20px; color: #2d3748;">📥 ${this.t('importData')}</h3>
-            <p style="color: #718096; font-size: 14px; margin-bottom: 15px;">
-            ${this.currentLanguage === 'en' ? 'Paste your JSON data below to import' : 'Collez vos données JSON ci-dessous pour importer'}
-            </p>
-            <textarea id="importTextarea" placeholder="${this.t('pasteData')}" 
-            style="width: 100%; min-height: 150px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; resize: vertical; margin-bottom: 10px;"></textarea>
-            <button onclick="window.app.importFromTextarea()" style="width: 100%; background: #0066cc;">
-            📥 ${this.t('importBtn')}
-            </button>
-        </div>
         </div>
         <div id="iconPickerContainer"></div>
     `;
@@ -793,18 +784,14 @@ class LocationFinder {
   }
 
   // Clear all data and reset to defaults
-  clearAllData() {
+  async clearAllData() {
     const confirmClear = window.confirm(this.currentLanguage === 'en'
-      ? 'Clear all data? This will reset pallets, types and icons to defaults.'
-      : 'Effacer toutes les données ? Cela réinitialisera les palettes, types et icônes par défaut.');
+      ? 'Reset all data? This will restore the default data from the source file.'
+      : 'Réinitialiser les données ? Ceci restaurera les données par défaut depuis le fichier source.');
     if (!confirmClear) return;
 
-    this.seatContents = {};
-    this.contentTypes = this.defaultContentTypes.slice();
-    this.productIcons = Object.assign({}, this.defaultProductIcons);
-    this.saveAllData(); // This will overwrite Firebase with default data
-    this.showInfo('✅ ' + this.t('clearedSuccess'));
-    setTimeout(() => this.showSettings(), 800);
+    // Re-use the importFromSource logic to reset the data
+    await this.importFromSource();
   }
 
   escapeHtml(text) {
@@ -905,7 +892,7 @@ class LocationFinder {
 
       // Granularly update Firebase
       await set(ref(database, 'warehouseData/contentTypes'), this.contentTypes);
-      await set(ref(database, `warehouseData/productIcons/${value}`), icon);
+      await set(ref(database, `warehouseData/productIcons/${this.sanitizeFirebaseKey(value)}`), icon); // Sanitize key for productIcons
 
       input.value = '';
       if (iconInput) iconInput.value = '';
@@ -939,27 +926,37 @@ class LocationFinder {
   }
 
   async saveSettings() {
-    const inputs = document.querySelectorAll('[id^="type-"]');
-    const iconInputs = document.querySelectorAll('[id^="icon-"]');
-
     const newTypes = [];
     const newIcons = {};
+    const oldTypes = this.contentTypes.slice(); // Keep a copy of the old types
+    const renameMap = {};
 
-    for (let i = 0; i < inputs.length; i++) {
-      const value = inputs[i].value.trim();
-      const icon = iconInputs[i] ? iconInputs[i].value.trim() || '📦' : '📦';
+    for (let i = 0; i < oldTypes.length; i++) {
+      const input = document.getElementById(`type-${i}`);
+      const iconInput = document.getElementById(`icon-${i}`);
+      const value = input ? input.value.trim() : '';
+      const icon = iconInput ? iconInput.value.trim() || '📦' : '📦';
+      
       if (value) {
         newTypes.push(value);
         newIcons[value] = icon;
+        if (value !== oldTypes[i]) {
+          renameMap[oldTypes[i]] = value;
+        }
+      }
+    }
+
+    // Update seatContents if any types were renamed
+    if (Object.keys(renameMap).length > 0) {
+      for (const seat in this.seatContents) {
+        this.seatContents[seat] = this.seatContents[seat].map(type => renameMap[type] || type);
       }
     }
 
     this.contentTypes = newTypes;
     this.productIcons = newIcons;
-    // Granularly update Firebase
-    await set(ref(database, 'warehouseData/contentTypes'), this.contentTypes);
-    await set(ref(database, 'warehouseData/productIcons'), this.productIcons);
-    await set(ref(database, 'warehouseData/lastUpdated'), new Date().toISOString());
+    // Save all data to ensure consistency after potential renames
+    await this.saveAllData();
     this.showModeSelection();
   }
 
